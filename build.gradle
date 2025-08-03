@@ -7,7 +7,7 @@ sourceSets.main.java.srcDirs = ["src"]
 repositories{
     mavenCentral()
     maven{ url "https://raw.githubusercontent.com/Zelaux/MindustryRepo/master/repository" }
-    maven{ url = uri("https://maven.xpdustry.com/mindustry") }
+    maven { url = uri("https://maven.xpdustry.com/mindustry") }
     maven{ url 'https://www.jitpack.io' }
 }
 
@@ -17,9 +17,6 @@ java{
 }
 
 ext{
-    //the build number that this mod is made for
-    mindustryVersion = 'v147.1'
-    jabelVersion = "93fde537c7"
     //windows sucks
     isWindows = System.getProperty("os.name").toLowerCase().contains("windows")
     sdkRoot = System.getenv("ANDROID_HOME") ?: System.getenv("ANDROID_SDK_ROOT")
@@ -35,14 +32,12 @@ allprojects{
 dependencies{
     compileOnly "com.github.Anuken.Arc:arc-core:$mindustryVersion"
     compileOnly "com.github.Anuken.Mindustry:core:$mindustryVersion"
-
-    annotationProcessor "com.github.Anuken:jabel:$jabelVersion"
 }
 
 //force arc version
 configurations.all{
     resolutionStrategy.eachDependency { details ->
-        if(details.requested.group == 'com.github.Anuken.Arc'){
+        if (details.requested.group == 'com.github.Anuken.Arc') {
             details.useVersion "$mindustryVersion"
         }
     }
@@ -65,7 +60,7 @@ task jarAndroid{
 
         //dex and desugar files - this requires d8 in your PATH
         "$d8 $dependencies --min-api 14 --output ${project.archivesBaseName}Android.jar ${project.archivesBaseName}Desktop.jar"
-            .execute(null, new File("$buildDir/libs")).waitForProcessOutput(System.out, System.err)
+                .execute(null, new File("$buildDir/libs")).waitForProcessOutput(System.out, System.err)
     }
 }
 
@@ -100,19 +95,21 @@ task deploy(type: Jar){
     }
 }
 
-task move doLast{
-    println "Yeeting the mod jar to the shadow realm..."
+task install {
+    mustRunAfter jar
 
-    String os = System.getProperty("os.name").toLowerCase(Locale.ROOT)
-    if(os.contains("windows")) {
-        ant.move file: "${buildDir}\\libs\\${project.archivesBaseName}Desktop.jar",
-                todir: "${System.env.USERPROFILE}\\AppData\\Roaming\\Mindustry\\mods"
-    }else if(os.contains("linux")) { //from Router
-        ant.move file: "${buildDir}/libs/${project.archivesBaseName}Desktop.jar",
-                todir: "${System.env.USERPROFILE}/.local/share/Mindustry/mods"
-    }else{
-        println "Yeah I don't know how to do this on a Mac can someone tell me?"
+    doLast {
+        println "Yeeting the mod jar to the shadow realm..."
+
+        String os = System.getProperty("os.name").toLowerCase(Locale.ROOT)
+        if (os.contains("windows")) {
+            ant.move file: "${buildDir}\\libs\\${project.archivesBaseName}Desktop.jar",
+                    todir: "${System.env.USERPROFILE}\\AppData\\Roaming\\Mindustry\\mods"
+        } else if (os.contains("linux")) { //from Router
+            ant.move file: "${buildDir}/libs/${project.archivesBaseName}Desktop.jar",
+                    todir: "${System.env.USERPROFILE}/.local/share/Mindustry/mods"
+        } else {
+            println "Yeah I don't know how to do this on a Mac can someone tell me?"
+        }
     }
 }
-
-task jarMove dependsOn "jar", "move"
