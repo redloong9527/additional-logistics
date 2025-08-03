@@ -3,6 +3,7 @@ package tranqol.content;
 import mindustry.content.*;
 import mindustry.type.*;
 import mindustry.world.*;
+import mindustry.world.blocks.distribution.*;
 import tranqol.world.blocks.defense.*;
 import tranqol.world.blocks.distribution.*;
 import tranqol.world.blocks.hybrid.*;
